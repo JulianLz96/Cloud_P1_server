@@ -77,17 +77,17 @@ $(document).ready(function() {
 
   function renderImg(images){
     let tag = "#photo";
-      for(let i = 0; i < 4; i++){
-        let img;
-        if(images[i]){
-          img = document.createElement("img");
-          img.src = images[i];
-          img.width = 250;
-        } else {
-          img = ""
-        }
-        tempTag = tag + i;
-        $(tempTag).html(img);
+    for(let i = 0; i < 4; i++){
+      let img;
+      if(images[i]){
+        img = document.createElement("img");
+        img.src = images[i];
+        img.width = 250;
+      } else {
+        img = ""
       }
-   }
+      tempTag = tag + i;
+      $(tempTag).html(img);
+    }
+  }
 });
