@@ -41,7 +41,7 @@ app.get('/search/:word', function(req, res) {
   var imageurls = new Array(); 
   
   var processData = function(callback) {
-      terms.get(stemmedword, function(err, data) {
+      labels.get(stemmedword, function(err, data) {
       if (err) {
         console.log("getAttributes() failed: "+err);
         callback(err.toString(), imageurls);
@@ -49,14 +49,14 @@ app.get('/search/:word', function(req, res) {
         console.log("getAttributes() returned no results");
         callback(undefined, imageurls);
       } else {
-  	    async.forEach(data, function(attribute, callback) { 
-                images.get(attribute.value, function(err, data){
-                    if (err) {
-                        console.log(err);
-                    }
-                    imageurls.push(data[0].value);
-                    callback();
-                 });
+  	    async.forEach(data.Items, function(attribute, callback) { 
+            images.get(attribute.value.S, function(err, data){
+                if (err) { 
+                    console.log(err);
+                }
+                imageurls.push(data.Items[0].value.S);
+                callback();
+              });
           }, function() {
             callback(undefined, imageurls);
           });
@@ -75,16 +75,16 @@ app.get('/search/:word', function(req, res) {
 
 //INIT Logic
 var images = new dynamoDbTable('images');
-var terms = new dynamoDbTable('terms');
+var labels = new dynamoDbTable('labels');
 
 images.init(
     function(){
-        terms.init(
+        labels.init(
             function(){
                 console.log("Images Storage Starter");
             }
         )
-        console.log("Terms Storage Starter");
+        console.log("Labels Storage Starter");
     }    
 );
 

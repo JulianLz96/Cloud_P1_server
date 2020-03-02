@@ -5,7 +5,7 @@
 
   function keyvaluestore(table) {
     this.LRU = require("lru-cache");
-    this.cache = this.LRU({ max: 500 });
+    this.cache = new this.LRU({ max: 500 });
     this.tableName = table;
   };
 
@@ -33,10 +33,25 @@
 keyvaluestore.prototype.get = function(search, callback) {
     var self = this;
     
-    if (self.cache.get(search))
-          callback(null, self.cache.get(search));
-    else {
-        
+    if (self.cache.get(search)){
+      callback(null, self.cache.get(search));
+    } else {
+      const keyExpression = "keyword = :k";
+      var params = {
+        KeyConditionExpression: keyExpression,
+        TableName: this.tableName,
+        ExpressionAttributeValues: {
+          ":k": {"S":search}
+        }
+      };
+      db.query(params, (err, data) => {
+        if(err){
+          callback(err, null)
+        } else {
+          self.cache.set(search, data);
+          callback(null, data)
+        }
+      })
       /*
        * 
        * La función QUERY debe generar un arreglo de objetos JSON son cada
@@ -51,6 +66,8 @@ keyvaluestore.prototype.get = function(search, callback) {
        */
     }
   };
+
+  
 
 
   module.exports = keyvaluestore;
